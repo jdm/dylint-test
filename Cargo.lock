@@ -54,7 +54,7 @@ name = "dylint-test"
 version = "0.1.0"
 dependencies = [
  "derive",
- "lint",
+ "noop-attr",
 ]
 
 [[package]]
@@ -100,6 +100,12 @@ version = "0.1.0"
 dependencies = [
  "dylint_linting",
 ]
+
+[[package]]
+name = "noop-attr"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60c4e7087abecc42fc475b67fa61e12d0daeb93f2125141880adb5b9f33f0a09"
 
 [[package]]
 name = "paste"

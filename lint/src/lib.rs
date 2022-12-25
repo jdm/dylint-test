@@ -32,12 +32,6 @@ declare_lint!(
     "Warn and report usage of unrooted jsmanaged objects"
 );
 
-/*dylint_linting::declare_late_lint! {
-    pub LINT,
-    Warn,
-    "description goes here"
-}*/
-
 pub(crate) struct UnrootedPass {
     symbols: Symbols,
 }
@@ -49,14 +43,21 @@ impl UnrootedPass {
 }
 
 
-fn has_lint_attr(sym: &Symbols, attrs: &[Attribute], name: Symbol) -> bool {
+fn has_lint_attr(sym: &Symbols, attrs: &[Attribute]) -> bool {
+    if attrs.is_empty() {
+        return false;
+    }
+    match &attrs[0].kind {
+        AttrKind::Normal(normal) => println!("{:?} {:?} {:?}", normal.item.path, sym.unrooted_must_root_lint, sym.must_root),
+        _ => {},
+    }
     attrs.iter().any(|attr| {
         matches!(
             &attr.kind,
             AttrKind::Normal(normal)
             if normal.item.path.segments.len() == 2 &&
             normal.item.path.segments[0].ident.name == sym.unrooted_must_root_lint &&
-            normal.item.path.segments[1].ident.name == name
+            normal.item.path.segments[1].ident.name == sym.must_root
         )
     })
 }
@@ -70,23 +71,25 @@ impl LintPass for UnrootedPass {
 impl<'tcx> LateLintPass<'tcx> for UnrootedPass {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx hir::Item) {
         let attrs = cx.tcx.hir().attrs(item.hir_id());
-        if !has_lint_attr(&self.symbols, &attrs, self.symbols.must_root) {
+        println!("checking {:?} {:?} {:?}", item.ident, item.span, attrs);
+        if has_lint_attr(&self.symbols, &attrs) {
+            cx.lint(
+                UNROOTED_MUST_ROOT,
+                "Type must be rooted, use #[unrooted_must_root_lint::must_root] \
+                 on the struct definition to propagate",
+                |_lint| _lint,
+            );
             return;
         }
-        if let hir::ItemKind::Struct(def, ..) = &item.kind {
-            for ref field in def.fields() {
+        //if let hir::ItemKind::Struct(def, ..) = &item.kind {
+        //    for ref field in def.fields() {
                 //let def_id = cx.tcx.hir().local_def_id(field.hir_id);
                 //if true 
                 //if is_unrooted_ty(&self.symbols, cx, cx.tcx.type_of(def_id), false) {
-                    cx.lint(
-                        UNROOTED_MUST_ROOT,
-                        "Type must be rooted, use #[unrooted_must_root_lint::must_root] \
-                         on the struct definition to propagate",
-                        |lint| lint.set_span(field.span),
-                    )
+                        //|lint| lint.set_span(field.span),
                 //}
-            }
-        }
+        //    }
+        //}
     }
 }
 

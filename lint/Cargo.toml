@@ -7,7 +7,7 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 #clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }

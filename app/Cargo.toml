@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 derive = { path = "../derive" }
-lint = { path = "../lint" }
+#lint = { path = "../lint" }
+noop-attr = "0.1"
